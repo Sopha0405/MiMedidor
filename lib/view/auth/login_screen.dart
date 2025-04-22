@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 40),
-            Image.asset('assets/Logo.jpg', height: 200),
+            Image.asset('assets/Logo.png', height: 160),
             const SizedBox(height: 20),
             const Text(
               "Bienvenido",

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../model/auth_model.dart';
 import '../../controller/auth_controller.dart';
-import 'verificar_screen.dart';
+import '../auth/verificar_screen.dart';
 
 class RecuperarScreen extends StatefulWidget {
   const RecuperarScreen({super.key});
@@ -16,37 +16,27 @@ class _RecuperarScreenState extends State<RecuperarScreen> {
   String mensaje = '';
 
 void enviarOTP() async {
-  try {
-    final int cod = int.tryParse(codController.text.trim()) ?? 0;
-    final String telefonoLimpio = telefonoController.text.trim().replaceAll(RegExp(r'\D'), '');
+  final int cod = int.tryParse(codController.text.trim()) ?? 0;
+  final String telefonoLimpio = telefonoController.text.trim().replaceAll(RegExp(r'\D'), '');
 
-    final model = AuthModel(codSocio: cod, telefono: telefonoLimpio);
-    final controller = AuthController(model);
-    final success = await controller.enviarOtp();
+  final model = AuthModel(codSocio: cod, telefono: telefonoLimpio);
+  final controller = AuthController(model);
+  final success = await controller.enviarOtp();
 
-    print("¿OTP enviado correctamente?: $success");
-
-    if (success) {
-      if (!mounted) return; 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => VerificarScreen(codSocio: cod),
-        ),
-      );
-    } else {
-      setState(() {
-        mensaje = "Datos incorrectos";
-      });
-    }
-  } catch (e) {
+  if (success) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VerificarScreen(codSocio: cod),
+      ),
+    );
+  }
+   else {
     setState(() {
-      mensaje = "Error inesperado: $e";
+      mensaje = "Datos Incorrectos";
     });
-    print("❌ Error al enviar OTP: $e");
   }
 }
-
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +49,7 @@ void enviarOTP() async {
             const SizedBox(height: 40),
             Image.asset('assets/Logo.png', height: 160),
             const SizedBox(height: 20),
-            const Text("Olvidé mi contraseña",
+            const Text("Cambiar mi contraseña",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             const Text("Confirma el número de teléfono que proporcionaste como socio"),

@@ -79,7 +79,6 @@ class _EstadisticasScreenState extends State<EstadisticasScreen> {
         }
       }
     } catch (e) {
-      print("Error al obtener datos: $e");
       if (mounted) {
         setState(() {
           isLoading = false;

@@ -115,7 +115,7 @@ class _SubirImagenScreenState extends State<SubirImagenScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Seleccionar Imagen"), backgroundColor: Colors.green),
+      appBar: AppBar(title: const Text("Seleccionar Imagen"), backgroundColor: Colors.blue),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -129,8 +129,8 @@ class _SubirImagenScreenState extends State<SubirImagenScreen> {
               icon: const Icon(Icons.image),
               label: const Text("Abrir Galería"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
+                foregroundColor: const Color.fromARGB(255, 0, 0, 0),
               ),
             ),
           if (_imagenSeleccionada != null) ...[
@@ -149,15 +149,6 @@ class _SubirImagenScreenState extends State<SubirImagenScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    onPressed: _seleccionarImagen,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text("Subir otra imagen"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
                 ],
               ),
           ],

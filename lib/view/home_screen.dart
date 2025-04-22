@@ -10,7 +10,10 @@ import '../controller/socio_controller.dart';
 import '../model/socio_model.dart';
 import '../model/prediccion_mensual_model.dart';
 import '../controller/prediccion_controller.dart';
-
+import 'package:camera/camera.dart';
+import 'camara.dart';
+import 'consumo/subir_imagen_screen.dart';
+import '../utils/notificacion_checker.dart';
 
 class HomeScreen extends StatefulWidget {
   final int codSocio;
@@ -25,25 +28,52 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late Future<Socio> _futureSocio;
   String fechaActual = "";
-  
-  @override
-  void initState() {
-    super.initState();
-    _futureSocio = SocioController(codSocio: widget.codSocio).fetchSocioData();
 
-    initializeDateFormatting('es_ES', null).then((_) {
-      setState(() {
-        fechaActual = DateFormat("EEEE d 'de' MMMM, yyyy", 'es_ES').format(DateTime.now());
-      });
+@override
+void initState() {
+  super.initState();
+  _futureSocio = SocioController(codSocio: widget.codSocio).fetchSocioData();
+
+  initializeDateFormatting('es_ES', null).then((_) {
+    setState(() {
+      fechaActual = DateFormat("EEEE d 'de' MMMM, yyyy", 'es_ES').format(DateTime.now());
     });
-  }
 
-  void _onItemTapped(int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      verificarSubidaPendiente(
+        context,
+        widget.codSocio,
+        () => _abrirCamara(context),
+        () => _abrirGaleria(context),
+      );
+    });
+  });
+}
+
+ void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  void _abrirCamara(BuildContext context) async {
+    final cameras = await availableCameras();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CamaraScreen(cameras: cameras),
+      ),
+    );
+  }
+
+  void _abrirGaleria(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SubirImagenScreen(codSocio: widget.codSocio),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
           Socio socio = snapshot.data!;
           final List<Widget> _screens = [
-            HomePage(socio: socio, fechaActual: fechaActual),
+            HomePage(
+              socio: socio,
+              fechaActual: fechaActual,
+              onAbrirCamara: () => _abrirCamara(context),
+              onGaleria: () => _abrirGaleria(context),
+            ),
             EstadisticasScreen(codSocio: widget.codSocio),
             CuponesScreen(codSocio: widget.codSocio),
             ConfiguracionScreen(codSocio: widget.codSocio),
@@ -100,19 +135,16 @@ class _HomeScreenState extends State<HomeScreen> {
 class HomePage extends StatelessWidget {
   final Socio socio;
   final String fechaActual;
+  final VoidCallback onAbrirCamara;
+  final VoidCallback onGaleria;
 
-  HomePage({super.key, required this.socio, required this.fechaActual});
-
-  final List<FlSpot> consumoData = const [
-    FlSpot(0, 12),
-    FlSpot(1, 15),
-    FlSpot(2, 10),
-    FlSpot(3, 8),
-    FlSpot(4, 14),
-    FlSpot(5, 13),
-  ];
-
-  final List<String> meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun"];
+  const HomePage({
+    super.key,
+    required this.socio,
+    required this.fechaActual,
+    required this.onAbrirCamara,
+    required this.onGaleria,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -192,113 +224,91 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-Widget _buildChart(int cod_socio) {
-  final controller = PrediccionController(codSocio: cod_socio);
 
-  return FutureBuilder<List<PrediccionMensual>>(
-    future: controller.fetchPredicciones(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Text('Error al cargar predicción: ${snapshot.error}'));
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return const Center(child: Text('No hay datos de predicción disponibles'));
-      }
+  Widget _buildChart(int codSocio) {
+    final controller = PrediccionController(codSocio: codSocio);
 
-      final data = snapshot.data!;
-      final consumoSpots = data.map((e) => FlSpot(e.mes, e.consumo)).toList();
+    return FutureBuilder<List<PrediccionMensual>>(
+      future: controller.fetchPredicciones(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error al cargar predicción: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No hay datos de predicción disponibles'));
+        }
 
-      return Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        elevation: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Predicción de consumo de agua (m³)",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 240,
-                child: LineChart(
-                  LineChartData(
-                    minY: 15, 
-                    maxY: data.map((e) => e.maximo -1).reduce((a, b) => a > b ? a : b),
-                    lineTouchData: LineTouchData(
-                      enabled: true,
-                      touchTooltipData: LineTouchTooltipData(
-                        tooltipBgColor: Colors.blueAccent.withOpacity(0.7),
-                        getTooltipItems: (touchedSpots) {
-                          return touchedSpots.map((spot) {
-                            return LineTooltipItem(
-                              "${spot.y.toStringAsFixed(2)} m³",
-                              const TextStyle(color: Colors.white),
-                            );
-                          }).toList();
-                        },
-                      ),
-                    ),
-                    gridData: FlGridData(show: true),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: 5,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) =>
-                              Text(value.toInt().toString(), style: const TextStyle(fontSize: 12)),
+        final data = snapshot.data!;
+        final consumoSpots = data.map((e) => FlSpot(e.mes, e.consumo)).toList();
+
+        return Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          elevation: 5,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Predicción de consumo de agua (m³)", style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 240,
+                  child: LineChart(
+                    LineChartData(
+                      minY: 15,
+                      maxY: data.map((e) => e.maximo - 1).reduce((a, b) => a > b ? a : b),
+                      gridData: FlGridData(show: true),
+                      titlesData: FlTitlesData(
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 5,
+                            reservedSize: 40,
+                            getTitlesWidget: (value, _) =>
+                                Text(value.toInt().toString(), style: const TextStyle(fontSize: 12)),
+                          ),
                         ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          interval: 1,
-                          reservedSize: 30,
-                          getTitlesWidget: (value, meta) {
-                            const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-                            if (value >= 1 && value <= 12) {
-                              return SideTitleWidget(
-                                axisSide: meta.axisSide,
-                                child: Text(meses[value.toInt() - 1], style: const TextStyle(fontSize: 12)),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 1,
+                            reservedSize: 30,
+                            getTitlesWidget: (value, meta) {
+                              const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+                              if (value >= 1 && value <= 12) {
+                                return SideTitleWidget(
+                                  axisSide: meta.axisSide,
+                                  child: Text(meses[value.toInt() - 1], style: const TextStyle(fontSize: 12)),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
                         ),
+                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       ),
-                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                    ),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: consumoSpots,
-                        isCurved: true,
-                        color: Colors.blue,
-                        barWidth: 3,
-                        isStrokeCapRound: true,
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: Colors.blue.withOpacity(0.3),
+                      borderData: FlBorderData(show: true, border: Border.all(color: Colors.grey.withOpacity(0.3))),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: consumoSpots,
+                          isCurved: true,
+                          color: Colors.blue,
+                          barWidth: 3,
+                          isStrokeCapRound: true,
+                          belowBarData: BarAreaData(show: true, color: Colors.blue.withOpacity(0.3)),
+                          dotData: FlDotData(show: true),
                         ),
-                        dotData: FlDotData(show: true),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 }

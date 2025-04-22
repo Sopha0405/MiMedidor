@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'camara.dart';
-import 'consumo/subir_imagen_screen.dart';
 import 'detalle_cupon_screen.dart';
 import '../controller/cupon_controller.dart';
 import '../model/cupon_model.dart';
@@ -24,24 +21,6 @@ class _CuponesScreenState extends State<CuponesScreen> {
     _cuponesFuturos = cuponController.obtenerCupones(widget.codSocio);
   }
 
-  void _abrirCamara(BuildContext context) async {
-    final cameras = await availableCameras();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CamaraScreen(cameras: cameras),
-      ),
-    );
-  }
-
-  void _abrirGaleria(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SubirImagenScreen(codSocio: widget.codSocio),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,42 +48,6 @@ class _CuponesScreenState extends State<CuponesScreen> {
                 );
               }
             },
-          ),
-
-          const SizedBox(height: 20),
-
-          Center(
-            child: ElevatedButton.icon(
-              onPressed: () => _abrirCamara(context),
-              icon: const Icon(Icons.camera_alt),
-              label: const Text("Abrir Cámara"),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                backgroundColor: Colors.blueAccent,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          Center(
-            child: ElevatedButton.icon(
-              onPressed: () => _abrirGaleria(context),
-              icon: const Icon(Icons.image),
-              label: const Text("Seleccionar Imagen"),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
           ),
         ],
       ),

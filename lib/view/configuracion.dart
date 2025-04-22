@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'configuracion/info_screen.dart';
 import 'configuracion/contacto_screen.dart';
-import 'auth/recuperar_screen.dart';
+import 'configuracion/recuperar_screen.dart';
 import 'auth/login_screen.dart';
 
 class ConfiguracionScreen extends StatelessWidget {
