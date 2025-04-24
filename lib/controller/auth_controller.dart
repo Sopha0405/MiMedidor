@@ -3,7 +3,7 @@ import 'dart:convert';
 import '../model/auth_model.dart';
 
 class AuthController {
-  final String baseUrl = 'http://192.168.0.22/mimedidor_api';
+  final String baseUrl = 'http://192.168.0.15/mimedidor_api';
   final AuthModel model;
 
   AuthController(this.model);
@@ -22,9 +22,7 @@ class AuthController {
       Uri.parse('$baseUrl/enviar_otp.php'),
       body: model.toJson(),
     );
-    print('STATUS: ${response.statusCode}');
-print('BODY: ${response.body}');
-
+    
     final data = json.decode(response.body);
     return data['success'] == true;
   }

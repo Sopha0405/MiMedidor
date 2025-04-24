@@ -10,7 +10,7 @@ Future<void> verificarSubidaPendiente(
   Function onGaleria, {
   bool ignorarAlertas = false,
 }) async {
-  final url = Uri.parse("http://192.168.0.22/mimedidor_api/verificar_subida_consumo.php");
+  final url = Uri.parse("http://192.168.0.15/mimedidor_api/verificar_subida_consumo.php");
   final response = await http.post(url, body: {'cod_socio': codSocio.toString()});
 
   if (response.statusCode == 200) {
@@ -63,7 +63,7 @@ Future<void> verificarSubidaPendiente(
           () => mostrarSelectorFuente(context, onCamara, onGaleria),
         );
       } else if (diaActual == diaUltimo + 3) {
-        final bloquearUrl = Uri.parse("http://192.168.0.22/mimedidor_api/bloquear_socio.php");
+        final bloquearUrl = Uri.parse("http://192.168.0.15/mimedidor_api/bloquear_socio.php");
         await http.post(bloquearUrl, body: {'cod_socio': codSocio.toString()});
 
         mostrarAlerta(

@@ -24,8 +24,6 @@ void enviarOTP() async {
     final controller = AuthController(model);
     final success = await controller.enviarOtp();
 
-    print("¿OTP enviado correctamente?: $success");
-
     if (success) {
       if (!mounted) return; 
       Navigator.push(
@@ -43,7 +41,6 @@ void enviarOTP() async {
     setState(() {
       mensaje = "Error inesperado: $e";
     });
-    print("❌ Error al enviar OTP: $e");
   }
 }
 

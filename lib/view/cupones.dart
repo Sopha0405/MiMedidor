@@ -84,7 +84,7 @@ Widget _buildCupon(BuildContext context, Cupon cupon) {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: Colors.blueAccent.withOpacity(0.15),
+                color: Colors.blueAccent.withAlpha((0.15 * 255).round()),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Center(

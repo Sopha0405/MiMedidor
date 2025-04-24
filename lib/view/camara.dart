@@ -12,10 +12,10 @@ class CamaraScreen extends StatefulWidget {
   const CamaraScreen({super.key, required this.cameras});
 
   @override
-  _CamaraScreenState createState() => _CamaraScreenState();
+  CamaraScreenState createState() => CamaraScreenState();
 }
 
-class _CamaraScreenState extends State<CamaraScreen> {
+class CamaraScreenState extends State<CamaraScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
   String? _imagePath;

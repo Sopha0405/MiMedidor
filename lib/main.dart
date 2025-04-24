@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'view/auth/login_screen.dart';
 import 'view/auth/activar_cuenta_screen.dart';
 import 'view/auth/recuperar_screen.dart';
-import 'view/splashScreen.dart';
+import 'view/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());

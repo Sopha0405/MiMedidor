@@ -89,7 +89,7 @@ void initState() {
           }
 
           Socio socio = snapshot.data!;
-          final List<Widget> _screens = [
+          final List<Widget> screens = [
             HomePage(
               socio: socio,
               fechaActual: fechaActual,
@@ -101,7 +101,7 @@ void initState() {
             ConfiguracionScreen(codSocio: widget.codSocio),
           ];
 
-          return _screens[_selectedIndex];
+          return screens[_selectedIndex];
         },
       ),
       bottomNavigationBar: Navbar(
@@ -289,7 +289,7 @@ class HomePage extends StatelessWidget {
                         topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       ),
-                      borderData: FlBorderData(show: true, border: Border.all(color: Colors.grey.withOpacity(0.3))),
+                      borderData: FlBorderData(show: true, border: Border.all(color: Colors.grey.withAlpha((0.15 * 255).round()),)),
                       lineBarsData: [
                         LineChartBarData(
                           spots: consumoSpots,
@@ -297,7 +297,7 @@ class HomePage extends StatelessWidget {
                           color: Colors.blue,
                           barWidth: 3,
                           isStrokeCapRound: true,
-                          belowBarData: BarAreaData(show: true, color: Colors.blue.withOpacity(0.3)),
+                          belowBarData: BarAreaData(show: true, color: Colors.blueAccent.withAlpha((0.15 * 255).round()),),
                           dotData: FlDotData(show: true),
                         ),
                       ],

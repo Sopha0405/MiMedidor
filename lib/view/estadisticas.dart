@@ -9,10 +9,10 @@ class EstadisticasScreen extends StatefulWidget {
   const EstadisticasScreen({super.key, required this.codSocio});
 
   @override
-  _EstadisticasScreenState createState() => _EstadisticasScreenState();
+  EstadisticasScreenState createState() => EstadisticasScreenState();
 }
 
-class _EstadisticasScreenState extends State<EstadisticasScreen> {
+class EstadisticasScreenState extends State<EstadisticasScreen> {
   int selectedYear = DateTime.now().year;
   int currentYear = DateTime.now().year;
   List<FlSpot> lineSpots = [];
@@ -30,11 +30,11 @@ class _EstadisticasScreenState extends State<EstadisticasScreen> {
   Future<void> fetchConsumptionData() async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.0.22/mimedidor_api/get_consumo.php?cod_socio=${widget.codSocio}&year=$selectedYear'),
+        Uri.parse('http://192.168.0.15/mimedidor_api/get_consumo.php?cod_socio=${widget.codSocio}&year=$selectedYear'),
       );
 
       final responseTrimestral = await http.get(
-        Uri.parse('http://192.168.0.22/mimedidor_api/get_consumo.php?cod_socio=${widget.codSocio}&year=$currentYear'),
+        Uri.parse('http://192.168.0.15/mimedidor_api/get_consumo.php?cod_socio=${widget.codSocio}&year=$currentYear'),
       );
 
       if (response.statusCode == 200 && responseTrimestral.statusCode == 200) {
