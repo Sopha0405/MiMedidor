@@ -8,7 +8,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 def obtener_datos_api(cod_socio):
-    url = f"http://192.168.0.15/mimedidor_api/get_consumo_historial_completo.php?cod_socio={cod_socio}"
+    url = f"http://192.168.0.19/mimedidor_api/get_consumo_historial_completo.php?cod_socio={cod_socio}"
     try:
         respuesta = requests.get(url)
         texto = respuesta.text.strip()

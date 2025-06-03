@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../model/cupon_model.dart';
 
 class CuponController {
-  final String _baseUrl = "http://192.168.0.15/mimedidor_api";
+  final String _baseUrl = "http://192.168.0.19/mimedidor_api";
 
   Future<List<Cupon>> obtenerCupones(int codSocio) async {
     final url = Uri.parse("$_baseUrl/get_cupones.php?cod_socio=$codSocio");
@@ -62,4 +62,16 @@ class CuponController {
     return meses[mes];
   }
 
+  Future<Cupon?> obtenerUltimoCupon(int codSocio) async {
+    final url = Uri.parse("$_baseUrl/ultimo_cupon.php?cod_socio=$codSocio");
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data["success"] == true && data["cupon"] != null) {
+        return Cupon.fromJson(data["cupon"]);
+      }
+    }
+    return null;
+  }
 }

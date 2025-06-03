@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../model/socio_model.dart';
 
 class SocioController {
-  final String apiUrl = "http://192.168.0.15/mimedidor_api";
+  final String apiUrl = "http://192.168.0.19/mimedidor_api";
   final int codSocio;
 
   SocioController({required this.codSocio});

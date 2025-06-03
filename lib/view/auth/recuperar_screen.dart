@@ -9,41 +9,49 @@ class RecuperarScreen extends StatefulWidget {
   @override
   State<RecuperarScreen> createState() => _RecuperarScreenState();
 }
-
 class _RecuperarScreenState extends State<RecuperarScreen> {
   final TextEditingController codController = TextEditingController();
   final TextEditingController telefonoController = TextEditingController();
   String mensaje = '';
+  bool _enviando = false;
 
-void enviarOTP() async {
-  try {
-    final int cod = int.tryParse(codController.text.trim()) ?? 0;
-    final String telefonoLimpio = telefonoController.text.trim().replaceAll(RegExp(r'\D'), '');
+  void enviarOTP() async {
+    if (_enviando) return; 
+    setState(() {
+      _enviando = true;
+      mensaje = '';
+    });
 
-    final model = AuthModel(codSocio: cod, telefono: telefonoLimpio);
-    final controller = AuthController(model);
-    final success = await controller.enviarOtp();
+    try {
+      final int cod = int.tryParse(codController.text.trim()) ?? 0;
+      final String telefonoLimpio = telefonoController.text.trim().replaceAll(RegExp(r'\D'), '');
 
-    if (success) {
-      if (!mounted) return; 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => VerificarScreen(codSocio: cod),
-        ),
-      );
-    } else {
+      final model = AuthModel(codSocio: cod, telefono: telefonoLimpio);
+      final controller = AuthController(model);
+      final success = await controller.enviarOtp();
+
+      if (!mounted) return;
+
+      if (success) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerificarScreen(codSocio: cod),
+          ),
+        );
+      } else {
+        setState(() {
+          mensaje = "Datos incorrectos";
+          _enviando = false;
+        });
+      }
+    } catch (e) {
       setState(() {
-        mensaje = "Datos incorrectos";
+        mensaje = "Error inesperado: $e";
+        _enviando = false; 
       });
     }
-  } catch (e) {
-    setState(() {
-      mensaje = "Error inesperado: $e";
-    });
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -82,8 +90,12 @@ void enviarOTP() async {
             ),
             const SizedBox(height: 25),
             ElevatedButton(
-              onPressed: enviarOTP,
-              child: const Text('Enviar'),
+              onPressed: _enviando ? null : enviarOTP,
+              child: _enviando
+                  ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : const Text('Enviar'),
             ),
             Text(mensaje, style: const TextStyle(color: Colors.red)),
             TextButton(

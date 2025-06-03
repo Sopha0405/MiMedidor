@@ -28,29 +28,35 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late Future<Socio> _futureSocio;
   String fechaActual = "";
+  bool mostrarBotonRegistro = false;
 
-@override
-void initState() {
-  super.initState();
-  _futureSocio = SocioController(codSocio: widget.codSocio).fetchSocioData();
+  @override
+  void initState() {
+    super.initState();
+    _futureSocio = SocioController(codSocio: widget.codSocio).fetchSocioData();
 
-  initializeDateFormatting('es_ES', null).then((_) {
-    setState(() {
-      fechaActual = DateFormat("EEEE d 'de' MMMM, yyyy", 'es_ES').format(DateTime.now());
+    initializeDateFormatting('es_ES', null).then((_) {
+      setState(() {
+        fechaActual = DateFormat("EEEE d 'de' MMMM, yyyy", 'es_ES').format(DateTime.now());
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        verificarSubidaPendiente(
+          context,
+          widget.codSocio,
+          () => _abrirCamara(context),
+          () => _abrirGaleria(context),
+          onUltimoDia: () {
+            setState(() {
+              mostrarBotonRegistro = true;
+            });
+          },
+        );
+      });
     });
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      verificarSubidaPendiente(
-        context,
-        widget.codSocio,
-        () => _abrirCamara(context),
-        () => _abrirGaleria(context),
-      );
-    });
-  });
-}
-
- void _onItemTapped(int index) {
+  void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
@@ -74,6 +80,7 @@ void initState() {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,6 +102,7 @@ void initState() {
               fechaActual: fechaActual,
               onAbrirCamara: () => _abrirCamara(context),
               onGaleria: () => _abrirGaleria(context),
+              mostrarBotonRegistro: mostrarBotonRegistro,
             ),
             EstadisticasScreen(codSocio: widget.codSocio),
             CuponesScreen(codSocio: widget.codSocio),
@@ -137,6 +145,7 @@ class HomePage extends StatelessWidget {
   final String fechaActual;
   final VoidCallback onAbrirCamara;
   final VoidCallback onGaleria;
+  final bool mostrarBotonRegistro;
 
   const HomePage({
     super.key,
@@ -144,6 +153,7 @@ class HomePage extends StatelessWidget {
     required this.fechaActual,
     required this.onAbrirCamara,
     required this.onGaleria,
+    required this.mostrarBotonRegistro,
   });
 
   @override
@@ -154,11 +164,58 @@ class HomePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          Text(
-            "Bienvenido ${socio.nombre} ${socio.aPaterno} ${socio.aMaterno}",
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+Row(
+  children: [
+    Expanded(
+      child: Text(
+                  "Bienvenido ${socio.nombre} ${socio.aPaterno} ${socio.aMaterno}",
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      ),
+    ),
+    if (mostrarBotonRegistro)
+      ElevatedButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text("Selecciona una opción"),
+              content: const Text("¿Desde dónde quieres subir la imagen?"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    onAbrirCamara();
+                  },
+                  child: const Text("Cámara"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    onGaleria();
+                  },
+                  child: const Text("Galería"),
+                ),
+              ],
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          Text(fechaActual, style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
+        ),
+        child: const Text("Registrar Consumo"),
+      ),
+  ],
+),
+
+          Text(
+            fechaActual,
+            style: const TextStyle(color: Colors.black54),
+          ),
           const SizedBox(height: 20),
           _buildConsumptionCard("${socio.consumoTotal} m³", "Consumo Total", Icons.opacity, Colors.blue),
           const SizedBox(height: 10),

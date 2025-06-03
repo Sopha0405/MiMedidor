@@ -3,7 +3,7 @@ import 'dart:convert';
 import '../model/auth_model.dart';
 
 class AuthController {
-  final String baseUrl = 'http://192.168.0.15/mimedidor_api';
+  final String baseUrl = 'http://192.168.0.19/mimedidor_api';
   final AuthModel model;
 
   AuthController(this.model);
@@ -59,4 +59,18 @@ class AuthController {
     final data = json.decode(response.body);
     return data['success'] == true;
   }
+
+  Future<bool> reenviarOtp() async {
+  final response = await http.post(
+      Uri.parse('$baseUrl/enviar_otp.php'),
+    body: {'cod_socio': model.codSocio.toString()},
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data['success'] == true;
+  }
+  return false;
+}
+
 }

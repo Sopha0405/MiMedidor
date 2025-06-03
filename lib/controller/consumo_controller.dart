@@ -9,7 +9,7 @@ class ConsumoController {
     required int numeroSerieCorrecto,
     required ConsumoModel consumoModel,
   }) async {
-    final url = Uri.parse("http://192.168.0.15/mimedidor_api/insertar_consumo.php");
+    final url = Uri.parse("http://192.168.0.19/mimedidor_api/insertar_consumo.php");
 
     if (numeroSerieIngresado != numeroSerieCorrecto) {
       return false;

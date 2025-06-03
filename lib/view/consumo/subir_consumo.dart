@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../controller/consumo_controller.dart';
 import '../../model/consumo_model.dart';
 import '../../controller/cupon_controller.dart';
-import '../../utils/notificaciones.dart';
-import '../../utils/notificacion_checker.dart';
+import 'ganaste_cupon.dart';
+import '../../components/loading_screen.dart'; 
 
 class SubirConsumoScreen extends StatefulWidget {
   final int consumo;
@@ -42,6 +42,20 @@ class _SubirConsumoScreenState extends State<SubirConsumoScreen> {
   }
 
   Future<void> _procesarSubida() async {
+  if (_serieController.text.trim().isEmpty || int.tryParse(_serieController.text.trim()) == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("⚠️ Ingresa un número de serie válido.")),
+    );
+    return;
+  }
+      Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoadingScreen(mensaje: "Registrando consumo"),
+      ),
+    );
+
+
     final numeroSerieIngresado = int.parse(_serieController.text.trim());
     final numeroSerieCorrecto = int.parse(widget.numeroSerieCorrecto);
     final consumoInt = widget.consumo;
@@ -64,29 +78,21 @@ class _SubirConsumoScreenState extends State<SubirConsumoScreen> {
       consumoModel: consumoModel,
     );
 
-    if (exito) {
-      await _crearCuponAleatorio();
+if (exito) {
+  await _crearCuponAleatorio();
 
-      await verificarSubidaPendiente(
-        context,
-        widget.codSocio,
-        () {},
-        () {},
-      );
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => GanasteCuponScreen(codSocio: widget.codSocio),
+    ),
+  );
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("❌ Error: Número de serie incorrecto.")),
+  );
+}
 
-mostrarConfirmacionRegistroFinal(
-  context,
-  () {
-    Navigator.pop(context); // Cierra el AlertDialog
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false); // Va a Login y limpia la pila
-  },
-);
-
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Error: Número de serie incorrecto.")),
-      );
-    }
   }
 
   @override

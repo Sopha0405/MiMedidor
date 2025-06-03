@@ -8,6 +8,7 @@ import 'subir_consumo.dart';
 import '../../model/prediccion_mensual_model.dart';
 import '../../controller/prediccion_controller.dart';
 import '../../controller/socio_controller.dart';
+import '../../components/loading_screen.dart';
 
 class ExtraerDato {
   static final String apiKey = "AIzaSyCqKfGKBbLopRLL7rsatJ3W23eNUmwzE4I";
@@ -16,12 +17,17 @@ class ExtraerDato {
   static Future<void> extraerConsumo(BuildContext context, int codSocio) async {
     File? ultimaImagen = await _obtenerUltimaImagen();
     if (ultimaImagen == null) {
-      _mostrarMensaje(context, "⚠️ No se encontró una imagen de medidor.");
+      _mostrarSnack(context, "⚠️ No se encontró una imagen de medidor.");
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SubirImagenScreen(codSocio: codSocio)));
       return;
     }
 
-    _mostrarMensaje(context, "📊 Extrayendo consumo de la imagen...");
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoadingScreen(mensaje: "Extrayendo consumo"),
+      ),
+    );
 
     try {
       final bytes = await ultimaImagen.readAsBytes();
@@ -42,15 +48,17 @@ class ExtraerDato {
         }),
       );
 
+      Navigator.pop(context);
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         String consumoExtraido = jsonResponse["candidates"][0]["content"]["parts"][0]["text"].trim();
         await _validarConsumo(context, consumoExtraido, codSocio);
       } else {
-        _mostrarMensaje(context, "⚠️ Error en la extracción. Intenta más tarde.");
+        _mostrarSnack(context, "⚠️ Error en la extracción. Intenta más tarde.");
       }
     } catch (e) {
-      _mostrarMensaje(context, "🚨 Error al conectar con la API: $e");
+      Navigator.pop(context); 
+      _mostrarSnack(context, "🚨 Error al conectar con la API: $e");
     }
   }
 
@@ -63,6 +71,13 @@ class ExtraerDato {
 
   static Future<void> _validarConsumo(BuildContext context, String consumoTexto, int codSocio) async {
     try {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoadingScreen(mensaje: "Validando consumo"),
+        ),
+      );
+
       final socio = await SocioController(codSocio: codSocio).fetchSocioData();
       final predicciones = await PrediccionController(codSocio: codSocio).fetchPredicciones();
 
@@ -79,9 +94,12 @@ class ExtraerDato {
       final bool estaObservado = !dentroDelRango;
       final int consumoFinal = consumoOperativo.round();
 
+      Navigator.pop(context); 
+
       _mostrarConfirmacion(context, consumoFinal, codSocio, socio.numeroSerie, estaObservado);
     } catch (e) {
-      _mostrarMensaje(context, "❌ Error validando el consumo: $e");
+      Navigator.pop(context); 
+      _mostrarSnack(context, "❌ Error validando el consumo: $e");
     }
   }
 
@@ -125,7 +143,7 @@ class ExtraerDato {
     );
   }
 
-  static void _mostrarMensaje(BuildContext context, String mensaje) {
+  static void _mostrarSnack(BuildContext context, String mensaje) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
   }
 }

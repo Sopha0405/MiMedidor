@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'extraer_dato.dart';
+import '../../components/loading_screen.dart'; 
 
 class SubirImagenScreen extends StatefulWidget {
   final int codSocio;
@@ -18,16 +19,10 @@ class SubirImagenScreen extends StatefulWidget {
 
 class _SubirImagenScreenState extends State<SubirImagenScreen> {
   File? _imagenSeleccionada;
-  bool _isProcessing = false;
   String? _resultadoValidacion;
 
   final String apiKey = "AIzaSyCqKfGKBbLopRLL7rsatJ3W23eNUmwzE4I";
   final String apiUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=";
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   Future<void> _seleccionarImagen() async {
     final ImagePicker picker = ImagePicker();
@@ -41,12 +36,14 @@ class _SubirImagenScreenState extends State<SubirImagenScreen> {
   }
 
   Future<void> _validarImagen() async {
-    if (_imagenSeleccionada == null || _isProcessing) return;
+    if (_imagenSeleccionada == null) return;
 
-    setState(() {
-      _isProcessing = true;
-      _resultadoValidacion = "Validando imagen...";
-    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoadingScreen(mensaje: "Validando imagen del medidor"),
+      ),
+    );
 
     try {
       final bytes = await _imagenSeleccionada!.readAsBytes();
@@ -66,6 +63,8 @@ class _SubirImagenScreenState extends State<SubirImagenScreen> {
           ]
         }),
       );
+
+      Navigator.pop(context); 
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
@@ -88,12 +87,9 @@ class _SubirImagenScreenState extends State<SubirImagenScreen> {
         });
       }
     } catch (e) {
+      Navigator.pop(context);
       setState(() {
         _resultadoValidacion = "🚨 Error al conectar con la API.";
-      });
-    } finally {
-      setState(() {
-        _isProcessing = false;
       });
     }
   }
@@ -133,25 +129,18 @@ class _SubirImagenScreenState extends State<SubirImagenScreen> {
                 foregroundColor: const Color.fromARGB(255, 0, 0, 0),
               ),
             ),
-          if (_imagenSeleccionada != null) ...[
-            const SizedBox(height: 10),
-            if (_isProcessing)
-              const CircularProgressIndicator()
-            else
-              Column(
-                children: [
-                  Text(
-                    _resultadoValidacion ?? "",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: _resultadoValidacion?.contains("✅") ?? false ? Colors.green : Colors.red,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
+          if (_imagenSeleccionada != null && _resultadoValidacion != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text(
+                _resultadoValidacion!,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: _resultadoValidacion!.contains("✅") ? Colors.green : Colors.red,
+                ),
               ),
-          ],
+            ),
         ],
       ),
     );

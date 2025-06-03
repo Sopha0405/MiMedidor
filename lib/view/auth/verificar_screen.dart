@@ -14,6 +14,7 @@ class VerificarScreen extends StatefulWidget {
 class _VerificarScreenState extends State<VerificarScreen> {
   final TextEditingController codigoController = TextEditingController();
   String mensaje = '';
+  bool reenviando = false;
 
   void verificarCodigo() async {
     final model = AuthModel(codSocio: widget.codSocio);
@@ -27,12 +28,27 @@ class _VerificarScreenState extends State<VerificarScreen> {
           builder: (_) => NuevaContrasenaScreen(codSocio: widget.codSocio),
         ),
       );
+    } else {
+      setState(() {
+        mensaje = "Código incorrecto o vencido";
+      });
     }
-     else {
-    setState(() {
-      mensaje = "Codigo Incorrecto o vencido";
-    });
   }
+
+  void reenviarCodigo() async {
+    setState(() {
+      reenviando = true;
+      mensaje = '';
+    });
+
+    final model = AuthModel(codSocio: widget.codSocio);
+    final controller = AuthController(model);
+    final enviado = await controller.reenviarOtp(); // Debes tener este método en tu controller
+
+    setState(() {
+      reenviando = false;
+      mensaje = enviado ? 'Código reenviado con éxito' : 'No se pudo reenviar el código';
+    });
   }
 
   @override
@@ -69,7 +85,12 @@ class _VerificarScreenState extends State<VerificarScreen> {
             Text(mensaje, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 10),
             const Text("¿No recibiste el código?"),
-            TextButton(onPressed: () {}, child: const Text("Reenviar Código")),
+            TextButton(
+              onPressed: reenviando ? null : reenviarCodigo,
+              child: reenviando
+                  ? const CircularProgressIndicator()
+                  : const Text("Reenviar Código"),
+            ),
           ],
         ),
       ),
