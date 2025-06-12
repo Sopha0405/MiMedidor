@@ -3,7 +3,7 @@ import 'dart:convert';
 import '../model/auth_model.dart';
 
 class AuthController {
-  final String baseUrl = 'http://192.168.0.19/mimedidor_api';
+  final String baseUrl = 'http://192.168.105.37/mimedidor_api';
   final AuthModel model;
 
   AuthController(this.model);

@@ -64,7 +64,7 @@ class _SubirConsumoScreenState extends State<SubirConsumoScreen> {
 
     final consumoModel = ConsumoModel(
       idMedidor: 0,
-      imagenMedidor: "imagen_medidor_base64_simulada",
+      imagenMedidor: "uploads\\11.jpg",
       fecha: fecha,
       consumo: consumoInt,
       monto: consumoInt * 2.5,

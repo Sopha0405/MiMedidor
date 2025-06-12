@@ -4,7 +4,6 @@ class Socio {
   final String aPaterno;
   final String aMaterno;
   final int codSocio;
-  final String correo;
   final String telefono;
   final int idMedidor;
   final int numeroSerie;
@@ -22,7 +21,6 @@ class Socio {
     required this.aPaterno,
     required this.aMaterno,
     required this.codSocio,
-    required this.correo,
     required this.telefono,
     required this.idMedidor,
     required this.numeroSerie,
@@ -42,7 +40,6 @@ factory Socio.fromJson(Map<String, dynamic> json) {
     aPaterno: json["a_paterno"]?.toString() ?? "",
     aMaterno: json["a_materno"]?.toString() ?? "",
     codSocio: json["cod_socio"] != null ? int.tryParse(json["cod_socio"].toString()) ?? 0 : 0,
-    correo: json["correo"]?.toString() ?? "",
     telefono: json["telefono"]?.toString() ?? "",
     idMedidor: json["id_medidor"] != null ? int.tryParse(json["id_medidor"].toString()) ?? 0 : 0,
     numeroSerie: json["numero_serie"] != null ? int.tryParse(json["numero_serie"].toString()) ?? 0 : 0,
@@ -64,7 +61,6 @@ factory Socio.fromJson(Map<String, dynamic> json) {
       aPaterno: "",
       aMaterno: "",
       codSocio: 0,
-      correo: "",
       telefono: "",
       idMedidor: 0,
       numeroSerie: 0,

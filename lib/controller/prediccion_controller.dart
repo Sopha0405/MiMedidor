@@ -8,7 +8,7 @@ class PrediccionController {
   PrediccionController({required this.codSocio});
 
   Future<List<PrediccionMensual>> fetchPredicciones() async {
-    final url = Uri.parse('http://192.168.0.19:5000/api/prediccion?cod_socio=$codSocio');
+    final url = Uri.parse('http://192.168.105.37:5000/api/prediccion?cod_socio=$codSocio');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

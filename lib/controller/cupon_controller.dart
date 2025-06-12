@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../model/cupon_model.dart';
 
 class CuponController {
-  final String _baseUrl = "http://192.168.0.19/mimedidor_api";
+  final String _baseUrl = "http://192.168.105.37/mimedidor_api";
 
   Future<List<Cupon>> obtenerCupones(int codSocio) async {
     final url = Uri.parse("$_baseUrl/get_cupones.php?cod_socio=$codSocio");

@@ -30,11 +30,11 @@ class EstadisticasScreenState extends State<EstadisticasScreen> {
   Future<void> fetchConsumptionData() async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.0.19/mimedidor_api/get_consumo.php?cod_socio=${widget.codSocio}&year=$selectedYear'),
+        Uri.parse('http://192.168.105.37/mimedidor_api/get_consumo.php?cod_socio=${widget.codSocio}&year=$selectedYear'),
       );
 
       final responseTrimestral = await http.get(
-        Uri.parse('http://192.168.0.19/mimedidor_api/get_consumo.php?cod_socio=${widget.codSocio}&year=$currentYear'),
+        Uri.parse('http://192.168.105.37/mimedidor_api/get_consumo.php?cod_socio=${widget.codSocio}&year=$currentYear'),
       );
 
       if (response.statusCode == 200 && responseTrimestral.statusCode == 200) {

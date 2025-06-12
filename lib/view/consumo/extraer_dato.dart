@@ -93,20 +93,20 @@ class ExtraerDato {
       final bool dentroDelRango = consumoOperativo >= prediccionMes.minimo && consumoOperativo <= prediccionMes.maximo;
       final bool estaObservado = !dentroDelRango;
       final int consumoFinal = consumoOperativo.round();
-
+      final double consumoE = double.parse(consumoTexto);
       Navigator.pop(context); 
 
-      _mostrarConfirmacion(context, consumoFinal, codSocio, socio.numeroSerie, estaObservado);
+      _mostrarConfirmacion(context, consumoExtraido, consumoFinal, codSocio, socio.numeroSerie, estaObservado);
     } catch (e) {
       Navigator.pop(context); 
       _mostrarSnack(context, "❌ Error validando el consumo: $e");
     }
   }
 
-  static void _mostrarConfirmacion(BuildContext context, int consumo, int codSocio, int numeroSerieCorrecto, bool estaObservado) {
+  static void _mostrarConfirmacion(BuildContext context,double consumoE, int consumo, int codSocio, int numeroSerieCorrecto, bool estaObservado) {
     final mensaje = estaObservado
-        ? "⚠️ El consumo está fuera del rango predicho.\nConsumo extraído: $consumo m³\n¿Deseas confirmarlo de todos modos?"
-        : "El consumo extraído del medidor es: $consumo m³\n¿Es correcto?";
+        ? "⚠️ El consumo está fuera del rango predicho.\nConsumo extraído: $consumoE m³\n¿Deseas confirmarlo de todos modos?"
+        : "El consumo extraído del medidor es: $consumoE m³\n¿Es correcto?";
 
     showDialog(
       context: context,
